@@ -1,38 +1,177 @@
+import 'dart:js';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_app/bloc/item/bloc.dart';
+import 'package:my_app/bloc/bloc.dart';
 import 'package:my_app/main.dart';
+import 'package:my_app/model/item.dart';
 
 class OnDay extends StatelessWidget {
-  final DataState state;
-  const OnDay({super.key, required this.state});
+  const OnDay({super.key});
+
+  List<Map<String, dynamic>> getData(List<Item> items) {
+    Map<String, dynamic> m = {"name": items[0].name, "true": 0, "false": 0};
+    List<Map<String, dynamic>> l = [];
+    for (int i = 0; i < items.length; i++) {
+      if (items[i].name == m['name']) {
+        if (items[i].debt)
+          m['true'] += items[i].money;
+        else
+          m['false'] += items[i].money;
+      } else {
+        l.add(m);
+        m = {"name": items[i].name, "true": 0, "false": 0};
+        i--;
+      }
+    }
+    l.add(m);
+    return l;
+  }
 
   @override
   Widget build(BuildContext context) {
-    String name = context.read<DataBloc>().key ?? "";    
-    if (name == "") return MyApp();
-    return Scaffold(
-      appBar: AppBar(title: Text(name)),
-      body: ListView.builder(
-        itemBuilder: (context, index) {
-          if(index<1)return buildRow(state.data[name]);
-        },
-      ),
+    return BlocConsumer<ItemBloc, ItemState>(
+      builder: (context, state) {
+        if (state is DetailLoaded)
+          return DefaultTabController(
+              length: 2,
+              child: Scaffold(
+                appBar: AppBar(
+                  backgroundColor: Color.fromARGB(255, 255, 147, 7),
+                  title: Text(state.items[0].name),
+                  bottom: TabBar(tabs: [
+                    Tab(
+                      text: "${state.items[0].name} nợ",
+                    ),
+                    Tab(
+                      text: "Nợ ${state.items[0].name}",
+                    ),
+                  ]),
+                ),
+                body: TabBarView(children: [
+                  _buildDebtView(state),
+                  _buildNotDebtView(state),
+                ]),
+                floatingActionButton: BlocListener<ItemBloc, ItemState> (
+                  listener: (context, state) {
+                    if (state is DetailLoaded) {
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('Task Updated!'),
+                      ));
+                    }
+                  },
+                  child: FloatingActionButton(
+                    backgroundColor: const Color(0xFFf8bd47),
+                    foregroundColor: const Color(0xFF322a1d),
+                    onPressed: () async {
+                      // Task? task = await _openDialog(lastId ?? 0);
+                      // if (task != null) {
+                      //   context.read<TasksBloc>().add(
+                      //         AddTask(task: task),
+                      //       );
+                      // }
+                    },
+                    tooltip: 'Increment',
+                    child: const Icon(Icons.add),
+                  ),
+                ),
+              ));
+        else
+          return CircularProgressIndicator();
+      },
+      listener: (context, state) {},
     );
   }
 
-  Widget buildRow(Map m) {
-    return ListTile(
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text(
-           m[1],
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ],
-      ),
-      onTap: () {},
+  Widget _buildDebtView(DetailLoaded state) {
+    var dataList = state.items.where((element) => element.debt).toList();
+    return ListView.builder(
+      itemCount: dataList.length,
+      itemBuilder: (context, index) {
+        return Container(
+          color: Colors.amber[400],
+          child: _buildRow(context, dataList[index]),
+        );
+      },
     );
   }
+
+  Widget _buildNotDebtView(DetailLoaded state) {
+    var dataList = state.items.where((element) => !element.debt).toList();
+    return ListView.builder(
+      itemCount: dataList.length,
+      itemBuilder: (context, index) {
+        return Container(
+          color: Colors.amber[400],
+          child: _buildRow(context, dataList[index]),
+        );
+      },
+    );
+  }
+
+  Widget _buildRow(BuildContext context, Item item) {
+    return ListTile(
+      title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            item.item,
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(item.money.toString()),
+        ],
+      ),
+      onTap: () {
+        // // context.read<DataBloc>().key = m['name'];
+        // Navigator.of(context).pushNamed("/onday");
+        // context.read<ItemBloc>().add(LoadDetail(items: state.items.where((element) => element.name==m['name']).toList()));
+      },
+    );
+  }
+
+  // Future<Item?> _openDialog(int lastId, BuildContext context) {
+  //   return showDialog<Item>(
+  //       context: context,
+  //       builder: (context) => AlertDialog(
+  //             backgroundColor: const Color(0XFFfeddaa),
+  //             title: TextField(
+  //                 controller: textInputTitleController,
+  //                 decoration: const InputDecoration(
+  //                     fillColor: Color(0XFF322a1d),
+  //                     hintText: 'Task Title',
+  //                     border: InputBorder.none)),
+  //             content: TextField(
+  //                 controller: textInputUserIdController,
+  //                 keyboardType: TextInputType.number,
+  //                 inputFormatters: <TextInputFormatter>[
+  //                   FilteringTextInputFormatter.digitsOnly
+  //                 ],
+  //                 decoration: const InputDecoration(
+  //                     hintText: 'User ID',
+  //                     border: InputBorder.none,
+  //                     filled: true)),
+  //             actions: [
+  //               TextButton(
+  //                   onPressed: () {
+  //                     Navigator.of(context).pop();
+  //                   },
+  //                   child: const Text(
+  //                     'Cancel',
+  //                     style: TextStyle(color: Colors.grey),
+  //                   )),
+  //               TextButton(
+  //                   onPressed: (() {
+  //                     if (textInputTitleController.text != '' &&
+  //                         textInputUserIdController.text != '') {
+  //                       Navigator.of(context).pop(Task(
+  //                           id: lastId + 1,
+  //                           userId: int.parse(textInputUserIdController.text),
+  //                           title: textInputTitleController.text));
+  //                     }
+  //                   }),
+  //                   child: const Text('Add',
+  //                       style: TextStyle(color: Color(0xFF322a1d))))
+  //             ],
+  //           ));
+  // }
 }

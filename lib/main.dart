@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_app/bloc/item/bloc.dart';
+import 'package:my_app/bloc/bloc.dart';
 import 'package:my_app/home.dart';
 import 'package:my_app/onDay.dart';
-import 'package:my_app/reponsitories/data_reponsitory.dart';
+import 'package:my_app/reponsitories/item_reponsitory.dart';
 
 void main(){
   runApp(const MyApp());
@@ -14,22 +14,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RepositoryProvider(
-        create: (context) => DataRepository(),
+    return
+     RepositoryProvider(
+        create: (context) => ItemRepository(),
         child: BlocProvider(
                 create:(context) {
-                  return DataBloc(dataRepo: RepositoryProvider.of(context));
+                  return ItemBloc(RepositoryProvider.of(context))..add(LoadItem());
                 },
                 child: MaterialApp(
+                  theme: ThemeData(
+                    primaryColor: Color.fromARGB(255, 206, 143, 6)
+                  ),
                   routes: {
-                    '/': (context) => BlocBuilder<DataBloc, DataState>(
-                          builder: (context, state) => HomePage(
-                            state: state,
-                          ),
-                        ),
-                    '/onday': (context) => BlocBuilder<DataBloc, DataState>(
-                      builder: (context, state) => OnDay(state: state,),
-                    ),
+                    '/': (context) =>HomePage(),
+                    '/onday': (context) => OnDay(),
                   },
                   initialRoute: '/',
                   title: "MyApp",

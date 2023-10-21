@@ -1,69 +1,100 @@
+import 'dart:js';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:my_app/bloc/item/bloc.dart';
+import 'package:my_app/bloc/bloc.dart';
+import 'package:my_app/model/item.dart';
+import 'package:my_app/reponsitories/item_reponsitory.dart';
 
 class HomePage extends StatelessWidget {
-  const HomePage({super.key, required this.state});
-  final DataState state;
+  const HomePage({super.key});
 
-
-
-  List<Map<String, dynamic>> getDataView(){
-    List<Map<String, dynamic>> dataList=[];
-
-    state.data.forEach((key, value) {
-      Map<String, dynamic> m = {};
-      m['name'] = key;
-      m['0'] = 0;
-      m['1'] = 0;
-      value.forEach((key, value) {
-        value["0"].forEach((key, value) {
-          m['0'] += value;
-          print(m['0']);
-        });
-        value["1"].forEach((key, value) {
-          m['1'] += value;
-        });
-      });
-      dataList.add(m);
-    });
-    return dataList;
+  List<Map<String, dynamic>> getData(List<Item> items) {
+    Map<String, dynamic> m = {"name": items[0].name, "true": 0, "false": 0};
+    List<Map<String, dynamic>> l = [];
+    for (int i = 0; i < items.length; i++) {
+      if (items[i].name == m['name']) {
+        if (items[i].debt)
+          m['true'] += items[i].money;
+        else
+          m['false'] += items[i].money;
+      } else {
+        l.add(m);
+        m = {"name": items[i].name, "true": 0, "false": 0};
+        i--;
+      }
+    }
+    l.add(m);
+    return l;
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> dataList=getDataView();
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color.fromARGB(255, 255, 147, 7),
         title: Text("Trang Chủ"),
       ),
-      body: ListView.builder(
-        itemBuilder: (context, index) {
-          if (index < dataList.length) return Container(
-            child: buildRow(context, dataList[index]),
-            color: Colors.greenAccent,
-          );
+      body: BlocConsumer<ItemBloc, ItemState>(
+        // bloc: context.read<ItemBloc>(),
+        buildWhen: (previous, current) {
+          return current != DetailLoaded();
         },
-        
+        builder: (context, state) {
+          if (state is ItemLoading) return CircularProgressIndicator();
+          if (state is ItemLoaded && state.items.isNotEmpty) {
+            return _buildView(state);
+          } else
+            return CircularProgressIndicator();
+        },
+        listener: (context, state) async {
+          if (state is DetailLoaded) {
+            await Navigator.of(context).pushNamed("/onday");
+            context.read<ItemBloc>().add(LoadItem());
+          }
+        },
       ),
     );
   }
 
-  Widget buildRow(BuildContext context, Map<String, dynamic> m) {
+  Widget _buildView(ItemLoaded state) {
+    List dataList = getData(state.items);
+    return ListView.builder(
+      itemCount: dataList.length,
+      itemBuilder: (context, index) {
+        return Container(
+          color: Colors.amber[400],
+          child: _buildRow(context, dataList[index], state),
+        );
+      },
+    );
+  }
+
+  Widget _buildRow(
+      BuildContext context, Map<String, dynamic> m, ItemLoaded state) {
     return ListTile(
       title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text("${m['name']}:", style: TextStyle(fontWeight: FontWeight.bold),),
-          Text("${m['name']} thiếu: ${m['0']}"),
-          Text("Thiếu ${m['name']}: ${m['1']}"),
+          Text(
+            "${m['name']}:",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text("${m['name']} nợ: ${m['true']}"),
+          Text("Nợ ${m['name']}: ${m['false']}"),
           Container(
-            child: Text((m['0']-m['1']).toString(), style: TextStyle(fontWeight: FontWeight.bold)),
+            child: Text((m['true'] - m['false']).toString(),
+                style: TextStyle(fontWeight: FontWeight.bold)),
           )
         ],
       ),
-      onTap: () {context.read<DataBloc>().key=m['name'];
-        Navigator.of(context).pushNamed("/onday");
+      onTap: () {
+        // // context.read<DataBloc>().key = m['name'];
+        // Navigator.of(context).pushNamed("/onday");
+        context.read<ItemBloc>().add(LoadDetail(
+            items: state.items
+                .where((element) => element.name == m['name'])
+                .toList()));
       },
     );
   }
