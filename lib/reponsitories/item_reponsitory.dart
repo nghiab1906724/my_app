@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:my_app/model/item.dart';
@@ -38,28 +39,41 @@ class ItemRepository {
       "money": 30000,
     },
   ];
-  Future<List<Item>> getItem() async {readFile();
+  Future<List<Item>> getItem() async {
+    await writeFile(jsonData[0]);
+    await readFile();
     return jsonData.map((item) => Item.fromJson(item)).toList();
   }
 
-  static Future<String> get getFilePath async{
-    final Directory dir=await getApplicationDocumentsDirectory();
-    return dir.path;
+  static Future<String> get getFilePath async {
+    final Directory? dir = await getApplicationDocumentsDirectory();
+    return dir != null ? dir.path : '';
   }
 
-  static Future<File> get getFile async{
-    final path=await getFilePath;
-    print('$path/items.json');
+  static Future<File> get getFile async {
+    final path = await getFilePath;
+    print('Duong dan là $path/items.json');
     return File('$path/items.json');
   }
 
-  Future<void> readFile() async{
-try{
-  final f=await getFile;
-  String data=await f.readAsString();
-  print(data);
-}catch(e){
-  print(e.toString());
-}
+  Future<void> readFile() async {
+    final f = await getFile;
+    if (await f.exists()) {
+      try {
+        String data = await f.readAsString();
+        print('Da ta day $data');
+      } catch (e) {
+        print('Bi loi ${e.toString()}');
+      }
+    }
+  }
+
+  Future<void> writeFile(Map<String, dynamic> js) async {
+    final f = await getFile;    
+      try {
+        await f.writeAsString(js.toString());
+      } catch (e) {
+        print('Bi loi ${e.toString()}');
+      }
   }
 }

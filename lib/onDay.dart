@@ -1,12 +1,11 @@
-import 'dart:js';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:my_app/bloc/bloc.dart';
-import 'package:my_app/main.dart';
+import 'package:my_app/form_dialog.dart';
 import 'package:my_app/model/item.dart';
 
-class OnDay extends StatelessWidget {
+class OnDay extends StatelessWidget with FormDialog {
   const OnDay({super.key});
 
   List<Map<String, dynamic>> getData(List<Item> items) {
@@ -52,7 +51,7 @@ class OnDay extends StatelessWidget {
                   _buildDebtView(state),
                   _buildNotDebtView(state),
                 ]),
-                floatingActionButton: BlocListener<ItemBloc, ItemState> (
+                floatingActionButton: BlocListener<ItemBloc, ItemState>(
                   listener: (context, state) {
                     if (state is DetailLoaded) {
                       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
@@ -64,7 +63,7 @@ class OnDay extends StatelessWidget {
                     backgroundColor: const Color(0xFFf8bd47),
                     foregroundColor: const Color(0xFF322a1d),
                     onPressed: () async {
-                      // Task? task = await _openDialog(lastId ?? 0);
+                      Item? item = await openAddItemDialog(context);
                       // if (task != null) {
                       //   context.read<TasksBloc>().add(
                       //         AddTask(task: task),
@@ -129,49 +128,42 @@ class OnDay extends StatelessWidget {
     );
   }
 
-  // Future<Item?> _openDialog(int lastId, BuildContext context) {
-  //   return showDialog<Item>(
-  //       context: context,
-  //       builder: (context) => AlertDialog(
-  //             backgroundColor: const Color(0XFFfeddaa),
-  //             title: TextField(
-  //                 controller: textInputTitleController,
-  //                 decoration: const InputDecoration(
-  //                     fillColor: Color(0XFF322a1d),
-  //                     hintText: 'Task Title',
-  //                     border: InputBorder.none)),
-  //             content: TextField(
-  //                 controller: textInputUserIdController,
-  //                 keyboardType: TextInputType.number,
-  //                 inputFormatters: <TextInputFormatter>[
-  //                   FilteringTextInputFormatter.digitsOnly
-  //                 ],
-  //                 decoration: const InputDecoration(
-  //                     hintText: 'User ID',
-  //                     border: InputBorder.none,
-  //                     filled: true)),
-  //             actions: [
-  //               TextButton(
-  //                   onPressed: () {
-  //                     Navigator.of(context).pop();
-  //                   },
-  //                   child: const Text(
-  //                     'Cancel',
-  //                     style: TextStyle(color: Colors.grey),
-  //                   )),
-  //               TextButton(
-  //                   onPressed: (() {
-  //                     if (textInputTitleController.text != '' &&
-  //                         textInputUserIdController.text != '') {
-  //                       Navigator.of(context).pop(Task(
-  //                           id: lastId + 1,
-  //                           userId: int.parse(textInputUserIdController.text),
-  //                           title: textInputTitleController.text));
-  //                     }
-  //                   }),
-  //                   child: const Text('Add',
-  //                       style: TextStyle(color: Color(0xFF322a1d))))
-  //             ],
-  //           ));
+  // Future<Item?> _openDialog(BuildContext context) {
+  //   final nameController=TextEditingController();
+  //   final dayController=TextEditingController();
+  //   ItemState state=context.read<ItemBloc>().state;
+
+  //   if(state is DetailLoaded) nameController.text=state.items[0].name;
+  //   dayController.text=DateFormat("dd-MM-yyyy").format(DateTime.now()).toString();
+
+  //   return showDialog(
+  //     context: context,
+  //     builder: (context) => AlertDialog(
+  //       backgroundColor: Colors.white,
+  //       title: TextField(
+  //           // controller: textInputTitleController,
+  //           decoration: const InputDecoration(
+  //               fillColor: Color(0XFF322a1d),
+  //               hintText: 'Tạo mục mới',
+  //               border: InputBorder.none)),
+  //       content: Form(child: Column(
+  //         children: [
+  //           TextFormField(
+  //             controller: nameController,
+  //             decoration: InputDecoration(
+  //               labelText: "Nhập tên",
+  //             ),
+  //           ),
+  //           TextFormField(
+  //             controller: dayController,
+  //             decoration: InputDecoration(
+  //               labelText: "Ngày",
+  //             ),
+              
+  //           ),
+  //         ],
+  //       )),
+  //     ),
+  //   );
   // }
 }
