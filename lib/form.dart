@@ -1,25 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:my_app/bloc/bloc.dart';
 import 'package:my_app/model/item.dart';
 
-class Form extends StatefulWidget {
+class AddForm extends StatefulWidget {
   final Map<String, dynamic>? valueForm;
-  const Form({super.key, required this.state});
+  const AddForm(
+      {super.key, this.valueForm = const {}, required this.onChanged});
+  final Function(BuildContext context, Map<String, dynamic>) onChanged;
 
   @override
-  State<Form> createState() => _FormState();
+  State<AddForm> createState() => _AddFormState();
 }
 
-class _FormState extends State<Form> {
+class _AddFormState extends State<AddForm> {
   final _nameController = TextEditingController();
   final _dayController = TextEditingController();
   final _itemController = TextEditingController();
   final _payController = TextEditingController();
+  bool _isChecked = false;
 
   @override
   void initState() {
-    // TODO: implement initState
+    _nameController.text = widget.valueForm?['name'] ?? '';
+    _dayController.text = widget.valueForm?['date'] ?? '';
     super.initState();
   }
 
@@ -34,55 +36,84 @@ class _FormState extends State<Form> {
 
   @override
   Widget build(BuildContext context) {
-    return FloatingActionButton(
-      onPressed: () async {
-        openAddItemDialog(context);
-      },
-    );
-  }
-
-  Future<Item?> openAddItemDialog(BuildContext context) {
-    if (widget.state is DetailLoaded) _nameController.text = widget.state.items[0].name;
-    _dayController.text = DateFormat("dd-MM-yyyy").format(DateTime.now()).toString();
-
-    return showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: Colors.white,
-        title: Text("Tạo mục mới"),
-        content: Column(
-          children: [
-            TextFormField(
-              controller: _nameController,
-              decoration: InputDecoration(
-                labelText: "Nhập tên",
-              ),
+    return Form(
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          TextFormField(
+            controller: _nameController,
+            decoration: InputDecoration(
+              labelText: "Nhập tên",
             ),
-            TextFormField(
-              controller: _dayController,
-              decoration: InputDecoration(
-                labelText: "Ngày",
-              ),
+          ),
+          TextFormField(
+            controller: _dayController,
+            decoration: InputDecoration(
+              labelText: "Ngày",
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextFormField(
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Expanded(
+                child: TextFormField(
                   controller: _itemController,
                   decoration: InputDecoration(
                     labelText: "Mục",
                   ),
                 ),
-                TextFormField(
+              ),
+              Expanded(
+                child: TextFormField(
                   controller: _payController,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
-                    labelText: "Tiền",
+                    labelText: "Tiền(k)",
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Text("Tôi mượn:"),
+              Checkbox(
+                value: this._isChecked,
+                onChanged: (value) {
+                  setState(() {
+                    this._isChecked = value!;
+                  });
+                },
+              )
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              ElevatedButton(
+                onPressed: () {},
+                child: Text("Huy"),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  widget.onChanged(
+                    context,
+                    {
+                      "id": Item.index,
+                      "name": _nameController.text,
+                      "date": _dayController.text,
+                      "debt": !this._isChecked,
+                      "item": _itemController.text,
+                      "money": int.parse(_payController.text),
+                    },
+                  );
+                },
+                child: Text("OK"),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
