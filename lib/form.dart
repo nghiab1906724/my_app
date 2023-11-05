@@ -92,7 +92,9 @@ class _AddFormState extends State<AddForm> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pop(context);
+                },
                 child: Text("Huy"),
               ),
               ElevatedButton(

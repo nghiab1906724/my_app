@@ -37,23 +37,14 @@ class OnDay extends StatelessWidget {
                   _buildDebtView(state),
                   _buildNotDebtView(state),
                 ]),
-                floatingActionButton: BlocListener<ItemBloc, ItemState>(
-                  listener: (context, state) {
-                    if (state is DetailLoaded) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('Task Updated!'),
-                      ));
-                    }
+                floatingActionButton: FloatingActionButton(
+                  backgroundColor: const Color(0xFFf8bd47),
+                  foregroundColor: const Color(0xFF322a1d),
+                  onPressed: () async {
+                    await _openDialog(context, state.items[0].name);
                   },
-                  child: FloatingActionButton(
-                    backgroundColor: const Color(0xFFf8bd47),
-                    foregroundColor: const Color(0xFF322a1d),
-                    onPressed: () async {
-                      await _openDialog(context, state.items[0].name);
-                    },
-                    tooltip: 'Increment',
-                    child: const Icon(Icons.add),
-                  ),
+                  tooltip: 'Increment',
+                  child: const Icon(Icons.add),
                 ),
               ));
         else

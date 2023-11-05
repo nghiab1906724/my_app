@@ -52,23 +52,14 @@ class HomePage extends StatelessWidget {
             );
         },
       ),
-      floatingActionButton: BlocListener<ItemBloc, ItemState>(
-        listener: (context, state) {
-          if (state is DetailLoaded) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-              content: Text('Task Updated!'),
-            ));
-          }
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: const Color(0xFFf8bd47),
+        foregroundColor: const Color(0xFF322a1d),
+        onPressed: () async {
+          await _openDialog(context);
         },
-        child: FloatingActionButton(
-          backgroundColor: const Color(0xFFf8bd47),
-          foregroundColor: const Color(0xFF322a1d),
-          onPressed: () async {
-            await _openDialog(context);
-          },
-          tooltip: 'Increment',
-          child: const Icon(Icons.add),
-        ),
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
       ),
     );
   }
