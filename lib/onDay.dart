@@ -5,9 +5,14 @@ import 'package:my_app/bloc/bloc.dart';
 import 'package:my_app/form.dart';
 import 'package:my_app/model/item.dart';
 
-class OnDay extends StatelessWidget {
+class OnDay extends StatefulWidget {
   const OnDay({super.key});
 
+  @override
+  State<OnDay> createState() => _OnDayState();
+}
+
+class _OnDayState extends State<OnDay> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<ItemBloc, ItemState>(
@@ -24,6 +29,26 @@ class OnDay extends StatelessWidget {
                       icon: Icon(Icons.arrow_back)),
                   backgroundColor: Color.fromARGB(255, 255, 147, 7),
                   title: Text(state.items[0].name),
+                  actions: [
+                    Switch(
+                      // This bool value toggles the switch.
+                      value: ItemState.isRemove,
+                      overlayColor:
+                          const MaterialStatePropertyAll<Color>(Colors.red),
+                      trackColor: ItemState.isRemove
+                          ? const MaterialStatePropertyAll<Color>(Colors.yellow)
+                          : const MaterialStatePropertyAll<Color>(Colors.white),
+                      thumbColor:
+                          const MaterialStatePropertyAll<Color>(Colors.black),
+                      activeColor: Colors.black,
+                      onChanged: (bool value) {
+                        // This is called when the user toggles the switch.
+                        setState(() {
+                          ItemState.isRemove = value;
+                        });
+                      },
+                    ),
+                  ],
                   bottom: TabBar(tabs: [
                     Tab(
                       text: "${state.items[0].name} nợ",
@@ -116,15 +141,17 @@ class OnDay extends StatelessWidget {
         ],
       ),
       onTap: () {},
-      leading: IconButton(
-        onPressed: () {
-          context.read<ItemBloc>().add(RemoveItem(items: [item]));
-        },
-        icon: Icon(
-          Icons.remove_circle,
-          color: Color.fromARGB(255, 244, 124, 54),
-        ),
-      ),
+      leading: ItemState.isRemove
+          ? IconButton(
+              onPressed: () {
+                context.read<ItemBloc>().add(RemoveItem(items: [item]));
+              },
+              icon: Icon(
+                Icons.remove_circle,
+                color: Color.fromARGB(255, 244, 124, 54),
+              ),
+            )
+          : null,
     );
   }
 
@@ -134,13 +161,9 @@ class OnDay extends StatelessWidget {
         builder: (context) => Container(
               child: AlertDialog(
                 backgroundColor: Colors.white,
-                title: TextField(
-                  // controller: textInputTitleController,
-                  decoration: const InputDecoration(
-                    fillColor: Color(0XFF322a1d),
-                    hintText: 'Tạo mục mới',
-                    border: InputBorder.none,
-                  ),
+                title: Center(
+                  child:
+                      Text("Tạo mục mới", style: TextStyle(color: Colors.blue)),
                 ),
                 content: AddForm(
                   valueForm: {

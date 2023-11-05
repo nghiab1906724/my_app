@@ -53,7 +53,7 @@ class _AddFormState extends State<AddForm> {
             ),
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             mainAxisSize: MainAxisSize.min,
             children: [
               Expanded(
@@ -64,6 +64,7 @@ class _AddFormState extends State<AddForm> {
                   ),
                 ),
               ),
+              Text(" "),
               Expanded(
                 child: TextFormField(
                   controller: _payController,
@@ -95,7 +96,7 @@ class _AddFormState extends State<AddForm> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text("Huy"),
+                child: Text("Hủy"),
               ),
               ElevatedButton(
                 onPressed: () {
@@ -111,7 +112,7 @@ class _AddFormState extends State<AddForm> {
                     },
                   );
                 },
-                child: Text("OK"),
+                child: Text("Lưu"),
               ),
             ],
           ),

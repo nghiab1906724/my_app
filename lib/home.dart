@@ -5,9 +5,14 @@ import 'package:my_app/bloc/bloc.dart';
 import 'package:my_app/form.dart';
 import 'package:my_app/model/item.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   List<Map<String, dynamic>> getData(List<Item> items) {
     List<Map<String, dynamic>> l = [];
     Map<String, int> check = {};
@@ -40,7 +45,28 @@ class HomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color.fromARGB(255, 255, 147, 7),
-        title: Text("Trang Chủ"),
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text("Trang Chủ"),
+            Switch(
+              // This bool value toggles the switch.
+              value: ItemState.isRemove,
+              overlayColor: const MaterialStatePropertyAll<Color>(Colors.red),
+              trackColor: ItemState.isRemove
+                  ? const MaterialStatePropertyAll<Color>(Colors.yellow)
+                  : const MaterialStatePropertyAll<Color>(Colors.white),
+              thumbColor: const MaterialStatePropertyAll<Color>(Colors.black),
+              activeColor: Colors.black,
+              onChanged: (bool value) {
+                // This is called when the user toggles the switch.
+                setState(() {
+                  ItemState.isRemove = value;
+                });
+              },
+            ),
+          ],
+        ),
       ),
       body: BlocBuilder<ItemBloc, ItemState>(
         builder: (context, state) {
@@ -115,15 +141,17 @@ class HomePage extends StatelessWidget {
       onTap: () {
         context.read<ItemBloc>().add(LoadDetail(items: row));
       },
-      leading: IconButton(
-        onPressed: () {
-          context.read<ItemBloc>().add(RemoveItem(items: row));
-        },
-        icon: Icon(
-          Icons.remove_circle,
-          color: Color.fromARGB(255, 244, 124, 54),
-        ),
-      ),
+      leading: ItemState.isRemove
+          ? IconButton(
+              onPressed: () {
+                context.read<ItemBloc>().add(RemoveItem(items: row));
+              },
+              icon: Icon(
+                Icons.remove_circle,
+                color: Color.fromARGB(255, 244, 124, 54),
+              ),
+            )
+          : null,
     );
   }
 
@@ -133,13 +161,9 @@ class HomePage extends StatelessWidget {
         builder: (context) => Container(
               child: AlertDialog(
                 backgroundColor: Colors.white,
-                title: TextField(
-                  // controller: textInputTitleController,
-                  decoration: const InputDecoration(
-                    fillColor: Color(0XFF322a1d),
-                    hintText: 'Tạo mục mới',
-                    border: InputBorder.none,
-                  ),
+                title: Center(
+                  child:
+                      Text("Tạo mục mới", style: TextStyle(color: Colors.blue)),
                 ),
                 content: AddForm(
                   valueForm: {

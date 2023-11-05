@@ -1,25 +1,26 @@
 part of 'bloc.dart';
 
-class ItemState extends Equatable{
+class ItemState extends Equatable {
+  static bool isRemove = false;
   const ItemState();
-@override
+  @override
   // TODO: implement props)
   List<Object?> get props => [];
 }
 
-class ItemLoaded extends ItemState{
+class ItemLoaded extends ItemState {
   final List<Item> items;
-  const ItemLoaded({this.items=const <Item>[]});
+  const ItemLoaded({this.items = const <Item>[]});
 }
 
-class ItemLoading extends ItemState{}
+class ItemLoading extends ItemState {}
 
-class ItemError extends ItemState{
+class ItemError extends ItemState {
   final String? mess;
   const ItemError(this.mess);
 }
 
-class DetailLoaded extends ItemState{
+class DetailLoaded extends ItemState {
   final List<Item> items;
-  const DetailLoaded({this.items=const []});
+  const DetailLoaded({this.items = const []});
 }
