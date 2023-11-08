@@ -4,7 +4,7 @@ part 'item.g.dart';
 
 @JsonSerializable()
 class Item extends Equatable {
-  final int id;
+  final String id;
   final String name;
   final String date;
   final bool debt;
@@ -24,5 +24,5 @@ class Item extends Equatable {
 
   @override
   // TODO: implement props
-  List<Object?> get props => [id];
+  List<Object?> get props => [id, name, date, debt, item, money];
 }

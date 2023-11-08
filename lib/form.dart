@@ -3,8 +3,7 @@ import 'package:my_app/model/item.dart';
 
 class AddForm extends StatefulWidget {
   final Map<String, dynamic>? valueForm;
-  const AddForm(
-      {super.key, this.valueForm = const {}, required this.onChanged});
+  const AddForm({super.key, this.valueForm = const {}, required this.onChanged});
   final Function(BuildContext context, Map<String, dynamic>) onChanged;
 
   @override
@@ -103,7 +102,7 @@ class _AddFormState extends State<AddForm> {
                   widget.onChanged(
                     context,
                     {
-                      "id": Item.index,
+                      "id": DateTime.now().microsecondsSinceEpoch.toString(),
                       "name": _nameController.text,
                       "date": _dayController.text,
                       "debt": !this._isChecked,

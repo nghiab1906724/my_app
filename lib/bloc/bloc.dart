@@ -35,10 +35,7 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     try {
       final items = await _itemRepo.saveItem(event.item);
       if (preState is DetailLoaded)
-        emit(DetailLoaded(
-            items: items
-                .where((element) => element.name == event.item.name)
-                .toList()));
+        emit(DetailLoaded(items: items.where((element) => element.name == event.item.name).toList()));
       else
         emit(ItemLoaded(items: items));
     } catch (e) {
@@ -52,20 +49,11 @@ class ItemBloc extends Bloc<ItemEvent, ItemState> {
     try {
       final items = await _itemRepo.removeItem(event.items);
       if (preState is DetailLoaded) {
-        final showItem = items
-            .where((element) => element.name == event.items[0].name)
-            .toList();
+        final showItem = items.where((element) => element.name == event.items[0].name).toList();
         if (showItem.isNotEmpty)
           emit(DetailLoaded(items: showItem));
         else
-          emit(DetailLoaded(items: [
-            Item(
-                id: -1,
-                name: event.items[0].name,
-                date: '',
-                debt: true,
-                item: '')
-          ]));
+          emit(DetailLoaded(items: [Item(id: '', name: event.items[0].name, date: '', debt: true, item: '')]));
       } else
         emit(ItemLoaded(items: items));
     } catch (e) {

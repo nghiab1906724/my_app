@@ -1,7 +1,7 @@
 part of 'item.dart';
 
 Item _$ItemFromJson(Map<String, dynamic> json) => Item(
-    id: json['id'] as int,
+    id: json['id'] as String,
     name: json['name'] as String,
     date: json['date'] as String,
     debt: json['debt'] as bool,
